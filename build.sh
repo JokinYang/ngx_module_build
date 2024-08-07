@@ -1,5 +1,7 @@
 hg clone http://hg.nginx.org/nginx
 
+cd nginx
+
 wget https://www.openssl.org/source/openssl-1.1.1m.tar.gz
 wget http://zlib.net/zlib-1.3.1.tar.gz
 wget https://udomain.dl.sourceforge.net/project/pcre/pcre/8.45/pcre-8.45.tar.gz
@@ -8,14 +10,17 @@ mkdir objs
 mkdir objs/lib
 cd objs/lib
 
-tar -xzf ../../pcre-8.44.tar.gz
+tar -xzf ../../pcre-8.45.tar.gz
 tar -xzf ../../zlib-1.3.1.tar.gz
-tar -xzf ../../openssl-1.1.1l.tar.gz
+tar -xzf ../../openssl-1.1.1m.tar.gz
 
+git clone https://github.com/fdintino/nginx-upload-module.git
+git clone https://github.com/openresty/lua-nginx-module.git
 cd ../../
 
 auto/configure \
---with-cc=cl \
+--with-compat \
+--with-cc=gcc \
 --with-debug \
 --prefix= \
 --conf-path=conf/nginx.conf \
@@ -30,8 +35,12 @@ auto/configure \
 --http-uwsgi-temp-path=temp/uwsgi_temp \
 --with-cc-opt=-DFD_SETSIZE=1024 \
 --with-pcre=objs/lib/pcre-8.45 \
---with-zlib=objs/lib/zlib-1.2.11 \
+--with-zlib=objs/lib/zlib-1.3.1 \
 --with-openssl=objs/lib/openssl-1.1.1m \
 --with-openssl-opt=no-asm \
 --with-http_ssl_module \
---with-http_gzip_static_module 
+--with-http_gzip_static_module  \
+--add-dynamic-module=objs/lib/nginx-upload-module \
+--add-dynamic-module=objs/lib/lua-nginx-module
+
+make -f objs/Makefile
